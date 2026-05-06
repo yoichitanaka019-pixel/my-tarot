@@ -1,0 +1,62 @@
+<style>
+    /* シャッフルコンテナを画面いっぱいに広げる */
+    #shuffle-container { 
+        display: none; 
+        margin: 50px 0; 
+        position: relative; 
+        width: 100%; 
+        max-width: 500px; 
+        height: 400px; 
+    }
+
+    .dummy-card { 
+        position: absolute; 
+        left: 50%;
+        top: 50%;
+        width: 160px; 
+        height: 280px; 
+        margin-left: -80px;
+        margin-top: -140px;
+        background: linear-gradient(135deg, #1a1a2e, #4e342e); 
+        border: 2px solid #ffd700; 
+        border-radius: 12px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    /* 5枚のカードを大きくバラバラに動かす */
+    .s-1 { animation: shuffleBig1 1.2s ease-in-out infinite; }
+    .s-2 { animation: shuffleBig2 1.2s ease-in-out infinite; animation-delay: 0.1s; }
+    .s-3 { animation: shuffleBig3 1.2s ease-in-out infinite; animation-delay: 0.2s; }
+    .s-4 { animation: shuffleBig4 1.2s ease-in-out infinite; animation-delay: 0.3s; }
+    .s-5 { animation: shuffleBig5 1.2s ease-in-out infinite; animation-delay: 0.4s; }
+
+    @keyframes shuffleBig1 {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); z-index: 5; }
+        50% { transform: translate(-150px, -20px) rotate(-15deg); z-index: 1; }
+    }
+    @keyframes shuffleBig2 {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); z-index: 4; }
+        50% { transform: translate(150px, 20px) rotate(15deg); z-index: 2; }
+    }
+    @keyframes shuffleBig3 {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); z-index: 3; }
+        50% { transform: translate(-80px, 50px) rotate(-30deg); z-index: 3; }
+    }
+    @keyframes shuffleBig4 {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); z-index: 2; }
+        50% { transform: translate(80px, -50px) rotate(30deg); z-index: 4; }
+    }
+    @keyframes shuffleBig5 {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); z-index: 1; }
+        50% { transform: translate(0, -100px) scale(1.1); z-index: 5; }
+    }
+</style>
+
+<!-- HTML部分を以下に入れ替え -->
+<div id="shuffle-container">
+    <div class="dummy-card s-1"></div>
+    <div class="dummy-card s-2"></div>
+    <div class="dummy-card s-3"></div>
+    <div class="dummy-card s-4"></div>
+    <div class="dummy-card s-5"></div>
+</div>
