@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神秘のタロット占い</title>
+    <style>
+        :root { --main-bg: #1a1a2e; --card-bg: #16213e; --accent: #e94560; --text: #ffffff; --disabled: #444; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--main-bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; overflow-x: hidden; min-height: 100vh; }
+        h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 20px; }
+        .setup-section { width: 100%; max-width: 400px; text-align: center; }
+        select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; font-size: 1rem; box-sizing: border-box; }
+        button { background-color: var(--accent); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:disabled { background-color: var(--disabled); cursor: not-allowed; }
+
+        #deck-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 500px; 
+            height: 400px; 
+            margin-top: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- 修正：裏面を画像に --- */
+        .card-back { 
+            position: absolute; 
+            width: 80px; 
+            height: 140px; 
+            background-image: url('back.png'); /* 添付画像の名前 */
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #ffd700; 
+            border-radius: 5px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .shuffling { 
+            animation: shuffleAction 0.6s ease-in-out infinite !important;
+        }
+
+        @keyframes shuffleAction {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-100px, -20px) rotate(-10deg); }
+            75% { transform: translate(100px, 20px) rotate(10deg); }
+        }
+
+        #result-area { display: none; text-align: center; width: 100%; max-width: 400px; }
+        .card-container { 
+            width: 220px; height: 380px; margin: 20px auto; 
+            animation: cardAppear 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); 
+        }
+        #card-image { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 3px solid #fff; box-shadow: 0 0 30px rgba(233, 69, 96, 0.8); }
+        .reverse { transform: rotate(180deg); }
+        
+        @keyframes cardAppear {
+            0% { transform: scale(0) rotateY(180deg); opacity: 0; }
+            100% { transform: scale(1) rotateY(0deg); opacity: 1; }
+        }
+
+        .diagnosis-box { background: var(--card-bg); padding: 15px; border-radius: 10px; border-left: 5px solid var(--accent); text-align: left; margin-bottom: 20px; }
+        #limit-msg { color: #ffbcbc; font-size: 0.8rem; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>🔮 神秘のタロット占い</h1>
+
+    <div class="setup-section">
+        <label for="category">占いたい項目を選んでください</label>
+        <select id="category" onchange="checkLimit()">
+            <option value="恋愛">恋愛</option>
+            <option value="仕事">仕事</option>
+            <option value="健康">健康</option>
+            <option value="家族">家族</option>
+            <option value="交友関係">交友関係</option>
+            <option value="ギャンブル">ギャンブル</option>
+        </select>
+        <div id="limit-msg">この項目は今日はもう占えません。明日またお越しください。</div>
+        
+        <div id="deck-container"></div>
+        
+        <button id="draw-btn" onclick="startShuffle()">シャッフルを開始する</button>
+    </div>
+
+    <div id="result-area">
+        <h2 id="result-title"></h2>
+        <div class="card-container">
+            <img id="card-image" src="" alt="タロットカード">
+        </div>
+        <div class="diagnosis-box">
+            <p id="diagnosis-text"></p>
+            <small id="advice-text" style="color: #bbb;"></small>
+        </div>
+        <button onclick="location.reload()" style="background:none; border:1px solid var(--accent);">戻る</button>
+    </div>
+
+    <script>
+        const tarotData = {
+            "愚者": "自由、始まり、無垢", "魔術師": "創造、才能、可能性", "女教皇": "直感、神秘、知恵",
+            "女帝": "豊穣、母性、愛", "皇帝": "権威、統治、責任", "教皇": "慈悲、連帯、伝統",
+            "恋人": "選択、調和、情熱", "戦車": "勝利、前進、意志", "正義": "公平、決断、均衡",
+            "隠者": "内省、探求、慎重", "運命の輪": "転換点、幸運、変化", "力": "勇気、忍耐、自制",
+            "吊るされた男": "修行、視点の変更、献身", "死神": "終焉、再生、変化", "節制": "節度、調和、癒し",
+            "悪魔": "誘惑、執着、束縛", "塔": "崩壊、衝撃、目覚め", "星": "希望、インスピレーション、願い",
+            "月": "不安、迷い、潜在意識", "太陽": "成功、祝福、活力", "審判": "復活、覚醒、結果", "世界": "完成、成就、調和"
+        };
+        const cardNames = Object.keys(tarotData);
+        const deckContainer = document.getElementById('deck-container');
+
+        window.onload = () => {
+            createDeck();
+            checkLimit();
+        };
+
+        function createDeck() {
+            deckContainer.innerHTML = '';
+            for (let i = 0; i < 22; i++) {
+                const card = document.createElement('div');
+                card.className = 'card-back';
+                const angle = (i - 10.5) * 8; 
+                const x = (i - 10.5) * 15;   
+                card.style.transform = `translateX(${x}px) rotate(${angle}deg)`;
+                card.style.zIndex = i;
+                deckContainer.appendChild(card);
+            }
+        }
+
+        function checkLimit() {
+            const category = document.getElementById('category').value;
+            const lastDate = localStorage.getItem('tarot_' + category);
+            const today = new Date().toLocaleDateString();
+            const btn = document.getElementById('draw-btn');
+            const msg = document.getElementById('limit-msg');
+
+            if (lastDate === today) {
+                btn.disabled = true;
+                msg.style.display = 'block';
+                deckContainer.style.opacity = '0.3';
+            } else {
+                btn.disabled = false;
+                msg.style.display = 'none';
+                deckContainer.style.opacity = '1';
+            }
+        }
+
+        function startShuffle() {
+            const cards = document.querySelectorAll('.card-back');
+            const btn = document.getElementById('draw-btn');
+            btn.disabled = true;
+
+            cards.forEach((card, index) => {
+                card.style.transform = `translate(0, 0) rotate(0deg)`;
+                setTimeout(() => {
+                    card.classList.add('shuffling');
+                    card.style.zIndex = Math.floor(Math.random() * 22);
+                }, 400);
+            });
+
+            setTimeout(drawCard, 2500);
+        }
+
+        function drawCard() {
+            const category = document.getElementById('category').value;
+            const cardName = cardNames[Math.floor(Math.random() * cardNames.length)];
+            const isReverse = Math.random() < 0.5;
+
+            localStorage.setItem('tarot_' + category, new Date().toLocaleDateString());
+
+            document.querySelector('.setup-section').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+
+            document.getElementById('result-title').innerText = `${cardName} (${isReverse ? '逆位置' : '正位置'})`;
+            document.getElementById('diagnosis-text').innerText = `${category}運：${tarotData[cardName]}`;
+            
+            const imgElement = document.getElementById('card-image');
+            imgElement.src = `${cardName}.png`;
+            
+            if (isReverse) {
+                imgElement.classList.add('reverse');
+                document.getElementById('advice-text').innerText = "※逆位置：今は少し慎重になり、視点を変えてみると良いでしょう。";
+            } else {
+                imgElement.classList.remove('reverse');
+                document.getElementById('advice-text').innerText = "※正位置：前向きなエネルギーが流れています。そのまま進みましょう。";
+            }
+        }
+    </script>
+</body>
+</html>
