@@ -593,6 +593,7 @@ const fortuneData = {
     }
 };
 
+// カード別の短い導入文
 const specialTexts = {
     "愚者": "新しい旅立ちが始まります。",
     "魔術師": "才能が目覚める時です。",
@@ -661,7 +662,7 @@ function drawCard() {
 
     const category = document.getElementById('category').value;
 
-    const card = cards[Math.floor(Math.random()*cards.length)];
+    const card = cards[Math.floor(Math.random() * cards.length)];
 
     const reverse = Math.random() < 0.5;
 
@@ -673,8 +674,20 @@ function drawCard() {
 
     document.getElementById('result-title').innerText = `${card} — ${position}`;
 
+    // カード固有データ取得
     const data = fortuneData[card][position];
 
+    // カテゴリ別補助文章
+    const categoryMessage = {
+        恋愛: '感情の流れが強く動いています。',
+        仕事: '環境変化が訪れる兆しがあります。',
+        健康: '生活習慣の見直しが鍵になります。',
+        家族: '身近な人との関係が運命を左右します。',
+        交友関係: '人間関係の変化が訪れそうです。',
+        ギャンブル: '直感と冷静さの両立が必要です。'
+    };
+
+    // 文章表示
     document.getElementById('diagnosis-text').innerText =
         `${specialTexts[card]}
 
@@ -685,25 +698,31 @@ ${data.text}`;
     document.getElementById('advice-text').innerText =
         `【神託】${data.advice}`;
 
+    // 画像表示
     const img = document.getElementById('card-image');
+
+    img.className = '';
 
     img.src = `${card}.png`;
 
-    if(reverse) {
+    // 逆位置
+    if (reverse) {
         img.classList.add('reverse');
     }
 
-    if(card === '太陽') {
+    // カード別演出
+    if (card === '太陽') {
         img.classList.add('special-sun');
     }
 
-    if(card === '月') {
+    if (card === '月') {
         img.classList.add('special-moon');
     }
 
-    if(card === '死神') {
+    if (card === '死神') {
         img.classList.add('special-death');
     }
+}
 }
 
 </script>
