@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>単一HTML版 タロット神託</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:"Yu Gothic",sans-serif;
+background:
+radial-gradient(circle at top,#1c2455 0%,#050816 65%);
+min-height:100vh;
+display:flex;
+justify-content:center;
+padding:20px;
+color:white;
+overflow-x:hidden;
+}
+
+.app{
+width:100%;
+max-width:560px;
+}
+
+.panel{
+background:rgba(255,255,255,.06);
+backdrop-filter:blur(10px);
+border-radius:28px;
+padding:28px;
+box-shadow:
+0 0 40px rgba(0,0,0,.5),
+0 0 60px rgba(139,92,246,.15);
+}
+
+.title{
+text-align:center;
+font-size:2rem;
+margin-bottom:20px;
+color:#f5d76e;
+text-shadow:0 0 20px rgba(245,215,110,.7);
+}
+
+#deck{
+position:relative;
+height:260px;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+}
+
+.card-back{
+position:absolute;
+width:82px;
+height:145px;
+border-radius:14px;
+background:
+linear-gradient(135deg,#f5e7b2 0%,#cfb15b 30%,#7a5f1c 100%);
+border:2px solid #ffd700;
+box-shadow:
+0 0 14px rgba(255,215,0,.55),
+0 0 28px rgba(255,215,0,.25);
+overflow:hidden;
+}
+
+.card-back::before{
+content:"✦";
+position:absolute;
+inset:0;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:34px;
+color:rgba(0,0,0,.45);
+}
+
+.magic-chaos{
+animation:magicChaos 4s ease-in-out infinite;
+}
+
+@keyframes magicChaos{
+
+0%{
+transform:
+translate(0,0)
+rotate(0deg)
+scale(.5);
+opacity:0;
+}
+
+25%{
+opacity:1;
+transform:
+translate(var(--x1),var(--y1))
+rotate(var(--r1))
+scale(1);
+}
+
+50%{
+transform:
+translate(var(--x2),var(--y2))
+rotate(var(--r2))
+scale(1.15);
+}
+
+75%{
+transform:
+translate(var(--x3),var(--y3))
+rotate(var(--r3))
+scale(1);
+}
+
+100%{
+transform:
+translate(var(--x4),var(--y4))
+rotate(var(--r4))
+scale(.7);
+opacity:.25;
+}
+
+}
+
+button{
+width:100%;
+padding:18px;
+margin-top:20px;
+border:none;
+border-radius:16px;
+font-size:1.15rem;
+font-weight:bold;
+cursor:pointer;
+color:white;
+background:
+linear-gradient(90deg,#7c3aed,#ec4899);
+box-shadow:
+0 10px 30px rgba(236,72,153,.35);
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-2px) scale(1.01);
+}
+
+#result{
+display:none;
+margin-top:24px;
+animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+#card-image{
+width:min(84vw,340px);
+height:auto;
+display:block;
+margin:auto;
+border-radius:20px;
+border:3px solid gold;
+background:#000;
+box-shadow:
+0 0 40px rgba(255,215,0,.45);
+}
+
+.reverse{
+transform:rotate(180deg);
+}
+
+#message{
+margin-top:22px;
+padding:24px;
+border-radius:20px;
+background:
+rgba(0,0,0,.35);
+line-height:1.95;
+font-size:1.02rem;
+box-shadow:
+inset 0 0 20px rgba(255,255,255,.03);
+}
+
+@media(max-width:768px){
+
+body{
+padding:14px;
+}
+
+.title{
+font-size:1.7rem;
+}
+
+.card-back{
+width:68px;
+height:120px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="panel" id="panel">
+
+<h1 class="title">✦ 究極タロット神託 ✦</h1>
+
+<div id="deck"></div>
+
+<button onclick="startFortune()" id="drawBtn">
+運命を占う
+</button>
+
+</div>
+
+<div id="result">
+
+<img id="card-image">
+
+<div id="message"></div>
+
+<button onclick="resetFortune()">
+もう一度占う
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const cards = [
+
+["愚者","新たな旅立ちが始まります。"],
+["魔術師","才能と行動力が未来を切り開きます。"],
+["女教皇","直感が重要な答えを示しています。"],
+["女帝","愛情と豊かさに恵まれる時です。"],
+["皇帝","責任と決断が成功を導きます。"],
+["教皇","誠実な選択が運命を安定させます。"],
+["恋人","大切な選択の時が近づいています。"],
+["戦車","強い意志が勝利へ導きます。"],
+["正義","公平な判断が求められています。"],
+["隠者","静かな時間が答えを見つけます。"],
+["運命の輪","運命が大きく動き始めています。"],
+["力","精神力が試されています。"],
+["吊るされた男","視点を変えることが必要です。"],
+["死神","終焉と再生の転換点です。"],
+["節制","調和とバランスが重要です。"],
+["悪魔","執着や誘惑に注意してください。"],
+["塔","突然の変化が訪れる暗示です。"],
+["星","希望の光が未来を照らしています。"],
+["月","不安や幻想に惑わされないでください。"],
+["太陽","最高の幸運期が訪れています。"],
+["審判","過去の努力が報われる時です。"],
+["世界","願いが完成へ向かっています。"]
+
+];
+
+function rand(min,max){
+return Math.floor(Math.random()*(max-min)+min);
+}
+
+function createDeck(){
+
+const deck=document.getElementById("deck");
+
+deck.innerHTML="";
+
+for(let i=0;i<22;i++){
+
+const card=document.createElement("div");
+
+card.className="card-back";
+
+card.style.left="45%";
+card.style.top="25%";
+
+card.style.transform=
+`rotate(${(i-11)*4}deg)`;
+
+deck.appendChild(card);
+
+}
+
+}
+
+createDeck();
+
+function startFortune(){
+
+document.getElementById("drawBtn").disabled=true;
+
+const all=document.querySelectorAll(".card-back");
+
+all.forEach(card=>{
+
+card.classList.add("magic-chaos");
+
+card.style.setProperty("--x1",rand(-140,140)+"px");
+card.style.setProperty("--y1",rand(-100,100)+"px");
+card.style.setProperty("--r1",rand(-180,180)+"deg");
+
+card.style.setProperty("--x2",rand(-180,180)+"px");
+card.style.setProperty("--y2",rand(-120,120)+"px");
+card.style.setProperty("--r2",rand(-260,260)+"deg");
+
+card.style.setProperty("--x3",rand(-190,190)+"px");
+card.style.setProperty("--y3",rand(-130,130)+"px");
+card.style.setProperty("--r3",rand(-360,360)+"deg");
+
+card.style.setProperty("--x4",rand(-210,210)+"px");
+card.style.setProperty("--y4",rand(-150,150)+"px");
+card.style.setProperty("--r4",rand(-540,540)+"deg");
+
+});
+
+setTimeout(drawCard,4000);
+
+}
+
+function makeCardSVG(title){
+
+return `
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="720">
+<defs>
+<linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#f6e7b2"/>
+<stop offset="50%" stop-color="#caa74d"/>
+<stop offset="100%" stop-color="#3f2b05"/>
+</linearGradient>
+</defs>
+
+<rect width="100%" height="100%" rx="24" fill="url(#bg)"/>
+
+<rect x="14" y="14" width="392" height="692"
+rx="20"
+fill="none"
+stroke="#fff2a8"
+stroke-width="4"/>
+
+<circle cx="210" cy="210" r="92"
+fill="rgba(255,255,255,.18)"
+stroke="#fff4b0"
+stroke-width="5"/>
+
+<text x="210" y="250"
+font-size="72"
+text-anchor="middle"
+fill="#2d1a00">✦</text>
+
+<text x="210" y="560"
+font-size="42"
+text-anchor="middle"
+fill="#fff8d0"
+font-family="serif">${title}</text>
+
+<text x="210" y="635"
+font-size="22"
+text-anchor="middle"
+fill="#fff8d0">TAROT ARCANA</text>
+
+</svg>
+`;
+
+}
+
+function drawCard(){
+
+const selected=
+cards[Math.floor(Math.random()*cards.length)];
+
+const reverse=
+Math.random()<0.5;
+
+document.getElementById("panel").style.display="none";
+
+document.getElementById("result").style.display="block";
+
+const img=document.getElementById("card-image");
+
+img.className="";
+
+const svg = makeCardSVG(selected[0]);
+
+img.src =
+"data:image/svg+xml;charset=utf-8," +
+encodeURIComponent(svg);
+
+if(reverse){
+img.classList.add("reverse");
+}
+
+document.getElementById("message").innerHTML=
+"<h2>"+selected[0]+
+(reverse ? "（逆位置）" : "（正位置）")+
+"</h2><br><br>" +
+selected[1];
+
+}
+
+function resetFortune(){
+
+document.getElementById("result").style.display="none";
+
+document.getElementById("panel").style.display="block";
+
+document.getElementById("drawBtn").disabled=false;
+
+createDeck();
+
+}
+
+</script>
+
+</body>
+</html>
