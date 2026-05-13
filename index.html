@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>究極タロット神託</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:"Yu Gothic",sans-serif;
+background:radial-gradient(circle at top,#1c2455 0%,#050816 70%);
+min-height:100vh;
+display:flex;
+justify-content:center;
+padding:20px;
+color:#fff;
+overflow-x:hidden;
+}
+
+.app{width:100%;max-width:580px}
+
+.panel{
+background:rgba(255,255,255,.06);
+backdrop-filter:blur(12px);
+border-radius:28px;
+padding:28px;
+box-shadow:0 0 40px rgba(0,0,0,.5);
+}
+
+.title{
+text-align:center;
+font-size:2rem;
+margin-bottom:24px;
+color:#f5d76e;
+text-shadow:0 0 18px rgba(245,215,110,.7);
+}
+
+.select-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+margin-bottom:20px;
+}
+
+.category-btn{
+padding:14px;
+border:none;
+border-radius:14px;
+background:#1a2144;
+color:#fff;
+font-weight:bold;
+cursor:pointer;
+transition:.25s;
+}
+
+.category-btn.active{
+background:linear-gradient(90deg,#7c3aed,#ec4899);
+transform:scale(1.03);
+}
+
+#deck{
+position:relative;
+height:250px;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+}
+
+.card-back{
+position:absolute;
+width:82px;
+height:145px;
+border-radius:14px;
+background:linear-gradient(135deg,#f5e7b2 0%,#cfb15b 30%,#7a5f1c 100%);
+border:2px solid gold;
+}
+
+.card-back::before{
+content:"✦";
+position:absolute;
+inset:0;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:34px;
+color:rgba(0,0,0,.45);
+}
+
+.magic-chaos{
+animation:chaos 4s ease-in-out forwards;
+}
+
+@keyframes chaos{
+0%{transform:translate(0,0) rotate(0deg) scale(.5);opacity:0}
+25%{opacity:1;transform:translate(var(--x1),var(--y1)) rotate(var(--r1))}
+50%{transform:translate(var(--x2),var(--y2)) rotate(var(--r2))}
+75%{transform:translate(var(--x3),var(--y3)) rotate(var(--r3))}
+100%{transform:translate(var(--x4),var(--y4)) rotate(var(--r4));opacity:.2}
+}
+
+.main-btn{
+width:100%;
+padding:18px;
+margin-top:20px;
+border:none;
+border-radius:16px;
+font-size:1.1rem;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(90deg,#7c3aed,#ec4899);
+color:#fff;
+}
+
+#result{
+display:none;
+margin-top:24px;
+}
+
+#card-image{
+width:min(84vw,340px);
+display:block;
+margin:auto;
+border-radius:20px;
+border:3px solid gold;
+box-shadow:0 0 35px rgba(255,215,0,.45);
+animation:fadeCard 1s ease;
+}
+
+@keyframes fadeCard{
+0%{opacity:0;transform:scale(.8)}
+100%{opacity:1;transform:scale(1)}
+}
+
+.reverse{
+transform:rotate(180deg);
+}
+
+.card-title{
+margin-top:18px;
+text-align:center;
+animation:titleReveal 1.2s ease;
+}
+
+.card-name{
+font-size:2rem;
+font-weight:bold;
+color:#f5d76e;
+text-shadow:0 0 18px rgba(245,215,110,.9);
+}
+
+.card-position{
+margin-top:6px;
+letter-spacing:.2em;
+opacity:.9;
+}
+
+@keyframes titleReveal{
+0%{
+opacity:0;
+transform:translateY(25px);
+filter:blur(10px);
+}
+100%{
+opacity:1;
+transform:translateY(0);
+filter:blur(0);
+}
+}
+
+.block{
+margin-top:22px;
+padding:24px;
+border-radius:18px;
+background:rgba(0,0,0,.35);
+line-height:1.9;
+}
+
+.block h3{
+margin-bottom:10px;
+color:#f5d76e;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="panel" id="panel">
+
+<h1 class="title">✦ 究極タロット神託 ✦</h1>
+
+<div class="select-grid">
+<button class="category-btn active" onclick="setCategory(this,'恋愛')">恋愛</button>
+<button class="category-btn" onclick="setCategory(this,'仕事')">仕事</button>
+<button class="category-btn" onclick="setCategory(this,'健康')">健康</button>
+<button class="category-btn" onclick="setCategory(this,'家族')">家族</button>
+<button class="category-btn" onclick="setCategory(this,'人間関係')">人間関係</button>
+<button class="category-btn" onclick="setCategory(this,'ギャンブル')">ギャンブル</button>
+</div>
+
+<div id="deck"></div>
+
+<button class="main-btn" onclick="startFortune()" id="drawBtn">
+運命を占う
+</button>
+
+</div>
+
+<div id="result">
+
+<img id="card-image">
+
+<div class="card-title">
+<div class="card-name" id="card-name"></div>
+<div class="card-position" id="card-position"></div>
+</div>
+
+<div class="block">
+<h3>神託</h3>
+<div id="oracle"></div>
+</div>
+
+<div class="block">
+<h3>啓示</h3>
+<div id="revelation"></div>
+</div>
+
+<button class="main-btn" onclick="resetFortune()">
+もう一度占う
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let selectedCategory = "恋愛";
+
+function setCategory(el,cat){
+
+selectedCategory = cat;
+
+document.querySelectorAll(".category-btn")
+.forEach(btn=>btn.classList.remove("active"));
+
+el.classList.add("active");
+
+}
+
+const cards = [
+"悪魔","隠者","運命の輪","愚者","月","皇帝","死神","女教皇","女帝",
+"審判","世界","星","正義","節制","戦車","太陽","吊るされた男",
+"塔","法王","魔術師","力","恋人たち"
+];
+
+const fortunes = {
+
+恋愛:{
+正位置:[
+"運命的な引き寄せが始まっています。心を開くことで愛の流れはさらに強まるでしょう。",
+"停滞していた恋愛運が動き始めています。素直な感情が未来を変えます。"
+],
+逆位置:[
+"不安や執着が恋愛運を乱しています。焦らず冷静さを取り戻してください。",
+"すれ違いが起きやすい時期です。本音を隠さないことが大切です。"
+]
+},
+
+仕事:{
+正位置:[
+"努力が認められ、大きな転機が近づいています。",
+"新しい挑戦が成功への扉を開こうとしています。"
+],
+逆位置:[
+"焦りによる判断ミスに注意が必要です。",
+"周囲との温度差がストレスになりやすい時期です。"
+]
+},
+
+健康:{
+正位置:[
+"心身のバランスが整い始めています。",
+"回復運が高まっています。休息が力になります。"
+],
+逆位置:[
+"無理を重ねることで疲労が蓄積しています。",
+"心の疲れが身体へ影響を与えています。"
+]
+},
+
+家族:{
+正位置:[
+"家族との絆が深まっています。",
+"温かな対話が家庭運を安定させます。"
+],
+逆位置:[
+"感情的な衝突が起きやすい暗示があります。",
+"過去のわだかまりが再浮上する可能性があります。"
+]
+},
+
+人間関係:{
+正位置:[
+"信頼できる縁が強まり始めています。",
+"新しい出会いが運気を変えていきます。"
+],
+逆位置:[
+"誤解や嫉妬に注意してください。",
+"無理に合わせすぎることで疲れが溜まっています。"
+]
+},
+
+ギャンブル:{
+正位置:[
+"直感が冴えています。冷静な判断が幸運を呼び込みます。",
+"流れがあなたに味方しています。"
+],
+逆位置:[
+"熱くなりすぎると損失が大きくなります。",
+"欲望に飲まれないことが重要です。"
+]
+}
+
+};
+
+const revelations = {
+
+"悪魔":{
+正位置:["欲望や執着の中に重要な学びが隠されています。"],
+逆位置:["あなたを縛っていた鎖から解放され始めています。"]
+},
+
+"隠者":{
+正位置:["静寂の中に未来を照らす答えがあります。"],
+逆位置:["孤立しすぎることで視野が狭くなっています。"]
+},
+
+"運命の輪":{
+正位置:["運命の流れが大きく動き始めています。"],
+逆位置:["変化を拒むほど停滞が強くなります。"]
+},
+
+"愚者":{
+正位置:["未知への旅立ちが新しい未来を呼び込みます。"],
+逆位置:["無計画な行動が混乱を招いています。"]
+},
+
+"月":{
+正位置:["見えない不安が心を揺らしています。"],
+逆位置:["隠されていた真実が明らかになろうとしています。"]
+},
+
+"皇帝":{
+正位置:["強い意志が成功を引き寄せます。"],
+逆位置:["支配欲や頑固さが運気を乱しています。"]
+},
+
+"死神":{
+正位置:["終わりは新たな始まりを意味しています。"],
+逆位置:["過去への執着が再生を妨げています。"]
+},
+
+"女教皇":{
+正位置:["静かな直感が真実を教えています。"],
+逆位置:["迷いが本来の判断力を曇らせています。"]
+},
+
+"女帝":{
+正位置:["愛と豊かさがあなたを包み込んでいます。"],
+逆位置:["感情の乱れが運気へ影響しています。"]
+},
+
+"審判":{
+正位置:["過去の努力が報われる時が近づいています。"],
+逆位置:["後悔が未来への扉を閉ざしています。"]
+},
+
+"世界":{
+正位置:["長い旅が完成へ向かっています。"],
+逆位置:["未完成の課題が停滞を招いています。"]
+},
+
+"星":{
+正位置:["希望の光が未来を照らしています。"],
+逆位置:["悲観的な思考が幸運を遠ざけています。"]
+},
+
+"正義":{
+正位置:["誠実さが正しい未来を引き寄せます。"],
+逆位置:["偏った視点が誤った判断を招いています。"]
+},
+
+"節制":{
+正位置:["調和とバランスが未来を安定させます。"],
+逆位置:["極端な行動が心身を乱しています。"]
+},
+
+"戦車":{
+正位置:["強い意志が障害を突破します。"],
+逆位置:["焦りによる暴走に注意してください。"]
+},
+
+"太陽":{
+正位置:["最高の幸運期が訪れています。"],
+逆位置:["油断や慢心が運気低下を招いています。"]
+},
+
+"吊るされた男":{
+正位置:["視点を変えることで真実が見えてきます。"],
+逆位置:["無意味な我慢を続けていないか見直してください。"]
+},
+
+"塔":{
+正位置:["突然の変化が新しい未来を呼び込みます。"],
+逆位置:["変化を恐れるほど衝撃は大きくなります。"]
+},
+
+"法王":{
+正位置:["精神的な学びが大きな成長につながります。"],
+逆位置:["古い価値観に縛られすぎています。"]
+},
+
+"魔術師":{
+正位置:["あなたの才能が現実を動かし始めています。"],
+逆位置:["迷いが本来の力を弱めています。"]
+},
+
+"力":{
+正位置:["優しさと精神力が困難を乗り越えます。"],
+逆位置:["自信喪失が本来の力を弱めています。"]
+},
+
+"恋人たち":{
+正位置:["運命的な選択が未来を変えようとしています。"],
+逆位置:["迷いや優柔不断が未来を曇らせています。"]
+}
+
+};
+
+function rand(min,max){
+return Math.floor(Math.random()*(max-min)+min);
+}
+
+function createDeck(){
+
+const deck = document.getElementById("deck");
+deck.innerHTML = "";
+
+for(let i=0;i<22;i++){
+
+const card = document.createElement("div");
+card.className = "card-back";
+
+card.style.left = "45%";
+card.style.top = "25%";
+card.style.transform = `rotate(${(i-11)*4}deg)`;
+
+deck.appendChild(card);
+
+}
+
+}
+
+createDeck();
+
+function startFortune(){
+
+document.getElementById("drawBtn").disabled = true;
+
+document.querySelectorAll(".card-back").forEach(card=>{
+
+card.classList.add("magic-chaos");
+
+card.style.setProperty("--x1",rand(-140,140)+"px");
+card.style.setProperty("--y1",rand(-100,100)+"px");
+card.style.setProperty("--r1",rand(-180,180)+"deg");
+
+card.style.setProperty("--x2",rand(-180,180)+"px");
+card.style.setProperty("--y2",rand(-120,120)+"px");
+card.style.setProperty("--r2",rand(-260,260)+"deg");
+
+card.style.setProperty("--x3",rand(-190,190)+"px");
+card.style.setProperty("--y3",rand(-130,130)+"px");
+card.style.setProperty("--r3",rand(-360,360)+"deg");
+
+card.style.setProperty("--x4",rand(-210,210)+"px");
+card.style.setProperty("--y4",rand(-150,150)+"px");
+card.style.setProperty("--r4",rand(-540,540)+"deg");
+
+});
+
+setTimeout(drawCard,4000);
+
+}
+
+function drawCard(){
+
+const card = cards[Math.floor(Math.random()*cards.length)];
+const type = Math.random() < 0.5 ? "正位置" : "逆位置";
+
+document.getElementById("panel").style.display = "none";
+document.getElementById("result").style.display = "block";
+
+const img = document.getElementById("card-image");
+
+img.className = "";
+
+img.src = encodeURIComponent(card) + ".png";
+
+if(type === "逆位置"){
+img.classList.add("reverse");
+}
+
+document.getElementById("card-name").innerText = card;
+document.getElementById("card-position").innerText = type;
+
+const oracleArray = fortunes[selectedCategory][type];
+const oracleText = oracleArray[Math.floor(Math.random()*oracleArray.length)];
+
+const revelationArray = revelations[card][type];
+const revelationText = revelationArray[Math.floor(Math.random()*revelationArray.length)];
+
+document.getElementById("oracle").textContent = oracleText;
+document.getElementById("revelation").textContent = revelationText;
+
+}
+
+function resetFortune(){
+
+document.getElementById("result").style.display = "none";
+document.getElementById("panel").style.display = "block";
+
+document.getElementById("drawBtn").disabled = false;
+
+createDeck();
+
+}
+
+</script>
+
+</body>
+</html>
